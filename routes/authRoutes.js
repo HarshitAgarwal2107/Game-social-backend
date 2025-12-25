@@ -41,7 +41,7 @@ router.get(
     }
 
     res.redirect(
-      `${FRONTEND_URL}/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
+      `${process.env.FRONTEND_URL}/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
     );
   }
 );
@@ -62,7 +62,7 @@ router.get(
     }
 
     res.redirect(
-      `${FRONTEND_URL}/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
+      `${process.env.FRONTEND_URL}/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
     );
   }
 );

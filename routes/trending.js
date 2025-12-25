@@ -6,7 +6,7 @@ import {
   getMappingBySteamId,
   upsertMapping,
   autoMatchRawg
-} from "../utils/steamRawgMap.js";
+} from "../utils/steamRawgmap.js";
 
 const router = express.Router();
 

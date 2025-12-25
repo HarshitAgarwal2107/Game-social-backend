@@ -1,9 +1,9 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import { rawgToSteamAppId } from "../utils/rawgTosteam.js";
+import { rawgToSteamAppId } from "../utils/rawgToSteam.js";
 import User from "../models/User.js";
-import { getLibraryForUser } from "../utils/getLibraryforUser.js";
+import { getLibraryForUser } from "../utils/getLibraryForUser.js";
 
 import SteamLibrary from "../models/SteamLibraries.js";
 import {

@@ -50,39 +50,39 @@ const PORT = process.env.PORT || 5000;
 
 let redis = null;
 
-async function startRedis() {
-  if (process.env.DISABLE_REDIS === "true") {
-    console.log("ℹ️ Redis disabled by environment");
-    return;
-  }
+// async function startRedis() {
+//   if (process.env.DISABLE_REDIS === "true") {
+//     console.log("ℹ️ Redis disabled by environment");
+//     return;
+//   }
 
-  try {
-    redis = new Redis({
-      host: process.env.REDIS_HOST || "127.0.0.1",
-      port: process.env.REDIS_PORT || 6379,
-      lazyConnect: true,
-      enableOfflineQueue: false,
-      maxRetriesPerRequest: 0,
-      retryStrategy: () => null
-    });
+//   try {
+//     redis = new Redis({
+//       host: process.env.REDIS_HOST || "127.0.0.1",
+//       port: process.env.REDIS_PORT || 6379,
+//       lazyConnect: true,
+//       enableOfflineQueue: false,
+//       maxRetriesPerRequest: 0,
+//       retryStrategy: () => null
+//     });
 
-    redis.on("connect", () => {
-      console.log("✅ Redis connected");
-    });
+//     redis.on("connect", () => {
+//       console.log("✅ Redis connected");
+//     });
 
-    redis.on("error", err => {
-      console.warn("⚠️ Redis error:", err.message);
-    });
+//     redis.on("error", err => {
+//       console.warn("⚠️ Redis error:", err.message);
+//     });
 
-    await redis.connect();
-  } catch (err) {
-    console.warn("⚠️ Redis not available, continuing without Redis");
-    try {
-      redis?.disconnect();
-    } catch {}
-    redis = null;
-  }
-}
+//     await redis.connect();
+//   } catch (err) {
+//     console.warn("⚠️ Redis not available, continuing without Redis");
+//     try {
+//       redis?.disconnect();
+//     } catch {}
+//     redis = null;
+//   }
+// }
 
 /* ---------------- MEDIASOUP (fully disabled) ---------------- */
 

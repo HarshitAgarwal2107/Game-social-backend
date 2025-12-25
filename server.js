@@ -11,7 +11,7 @@ import MongoStore from "connect-mongo";
 import passport from "passport";
 import dotenv from "dotenv";
 // import mediasoup from "mediasoup";  // ← Removed
-import Redis from "ioredis";
+//import Redis from "ioredis";
 
 import connectDB from "./config/db.js";
 import "./strategies/google.js";
@@ -48,7 +48,7 @@ const PORT = process.env.PORT || 5000;
 
 /* ---------------- REDIS ---------------- */
 
-let redis = null;
+//let redis = null;
 
 // async function startRedis() {
 //   if (process.env.DISABLE_REDIS === "true") {

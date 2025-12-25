@@ -41,7 +41,7 @@ router.get(
     }
 
     res.redirect(
-      `http://localhost:5173/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
+      `${FRONTEND_URL}/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
     );
   }
 );
@@ -62,7 +62,7 @@ router.get(
     }
 
     res.redirect(
-      `http://localhost:5173/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
+      `${FRONTEND_URL}/dashboard?usernameAssigned=${!!req.user.usernameAssigned}`
     );
   }
 );

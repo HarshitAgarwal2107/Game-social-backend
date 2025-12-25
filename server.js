@@ -200,7 +200,7 @@ async function main() {
     await connectDB();
     console.log("All DBs connected.");
 
-    await startRedis();
+    //await startRedis();
 
     startCron({ runImmediately: true });
     console.log("Trending cron started.");

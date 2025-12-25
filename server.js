@@ -1,5 +1,3 @@
-//process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
 import steamAutoSync from "./middleware/SteamAutoSync.js";
 import express from "express";
 import http from "http";
@@ -10,8 +8,6 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
 import dotenv from "dotenv";
-// import mediasoup from "mediasoup";  // ← Removed
-//import Redis from "ioredis";
 
 import connectDB from "./config/db.js";
 import "./strategies/google.js";
@@ -29,99 +25,46 @@ import { startRawgCron } from "./cron/rawg_games.js";
 
 import reviewRoutes from "./routes/reviewRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
-
 import searchRoutes from "./routes/searchRoutes.js";
 
 dotenv.config();
 
+/* ---------------- APP ---------------- */
+
 const app = express();
 const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    credentials: true
-  }
-});
-
 const PORT = process.env.PORT || 5000;
 
-/* ---------------- REDIS ---------------- */
-
-//let redis = null;
-
-// async function startRedis() {
-//   if (process.env.DISABLE_REDIS === "true") {
-//     console.log("ℹ️ Redis disabled by environment");
-//     return;
-//   }
-
-//   try {
-//     redis = new Redis({
-//       host: process.env.REDIS_HOST || "127.0.0.1",
-//       port: process.env.REDIS_PORT || 6379,
-//       lazyConnect: true,
-//       enableOfflineQueue: false,
-//       maxRetriesPerRequest: 0,
-//       retryStrategy: () => null
-//     });
-
-//     redis.on("connect", () => {
-//       console.log("✅ Redis connected");
-//     });
-
-//     redis.on("error", err => {
-//       console.warn("⚠️ Redis error:", err.message);
-//     });
-
-//     await redis.connect();
-//   } catch (err) {
-//     console.warn("⚠️ Redis not available, continuing without Redis");
-//     try {
-//       redis?.disconnect();
-//     } catch {}
-//     redis = null;
-//   }
-// }
-
-/* ---------------- MEDIASOUP (fully disabled) ---------------- */
-
-// let worker;  // ← Commented out
-
-// async function runMediasoupWorker() { ... }  // ← Removed entirely
-
-// const routers = new Map();  // ← Removed
-
-// async function createRoomRouter(roomId) { ... }  // ← Removed entirely
-
-/* ---------------- MIDDLEWARE ---------------- */
+/* ---------------- CORS ---------------- */
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  "http://localhost:5173"
-];
+  process.env.FRONTEND_URL,      // Vercel
+  "http://localhost:5173"        // Local dev
+].filter(Boolean);
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true
+  })
+);
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true
-}));
+/* ---------------- SECURITY ---------------- */
 
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+/* ---------------- SESSION ---------------- */
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "gamesocial-super-secret-2025",
+    name: "connect.sid",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -131,8 +74,8 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
-      secure: false,
-      sameSite: "lax"
+      secure: true,        // REQUIRED for Vercel/Railway
+      sameSite: "none"     // REQUIRED for cross-origin cookies
     }
   })
 );
@@ -167,18 +110,6 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/friends", friendRoutes);
 
-app.get("/debug/session", (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.status(404).send("Not found");
-  }
-  res.json({
-    sessionID: req.sessionID,
-    session: req.session,
-    user: req.user || null,
-    authenticated: !!req.user
-  });
-});
-
 app.get("/", (req, res) => {
   res.json({
     message: "GameSocial API Running",
@@ -186,26 +117,28 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get(
-  "/api/frontend-hit",
-  steamAutoSync,
-  (req, res) => {
-    res.json({ ok: true });
-  }
-);
+app.get("/api/frontend-hit", steamAutoSync, (req, res) => {
+  res.json({ ok: true });
+});
 
 /* ---------------- SOCKET.IO ---------------- */
 
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+
 io.use((socket, next) => {
-  const { user } = socket.request.session?.passport || {};
-  if (user) {
-    socket.handshake.auth.user = user;
+  const passportSession = socket.request.session?.passport;
+  if (passportSession?.user) {
+    socket.handshake.auth.user = passportSession.user;
   }
   next();
 });
 
-// Pass only io to socketHandlers (no mediasoup dependencies)
-socketHandlers(io);  // ← Removed { worker, createRoomRouter }
+socketHandlers(io);
 
 /* ---------------- STARTUP ---------------- */
 
@@ -214,15 +147,14 @@ async function main() {
     await connectDB();
     console.log("All DBs connected.");
 
-    //await startRedis();
-
     startCron({ runImmediately: true });
     console.log("Trending cron started.");
+
     startRawgCron({ runImmediately: true });
     console.log("RAWG cron started.");
 
     server.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
       console.log("Socket.IO ready");
     });
   } catch (err) {

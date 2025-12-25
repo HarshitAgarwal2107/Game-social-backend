@@ -4,7 +4,7 @@ import {
   getMappingBySteamId,
   autoMatchRawg,
   upsertMapping
-} from "./steamRawgMap.js";
+} from "./steamRawgmap.js";
 
 export async function getLibraryForUser(userId) {
   const library = await SteamLibrary.findOne({ userId }).lean();

@@ -1,10 +1,10 @@
 // social/socketServer.js
-import Redis from "ioredis";
+//import Redis from "ioredis";
 import { attachTextHandlers } from "./socketTextHandlers.js";
 // import { attachVoiceHandlers } from "./socketVoiceHandlers.js";  // ← Fully removed
 
 const REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
-const sub = new Redis(REDIS_URL);
+//const sub = new Redis(REDIS_URL);
 
 // Subscribe to idle notifications (keeps behavior from earlier implementation)
 sub.subscribe("room:idle");

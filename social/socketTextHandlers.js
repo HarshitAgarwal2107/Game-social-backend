@@ -1,9 +1,9 @@
 // social/socketTextHandlers.js
-import Redis from "ioredis";
+//import Redis from "ioredis";
 import { getPG } from "../config/db.js";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
-const redis = new Redis(REDIS_URL);
+//const redis = new Redis(REDIS_URL);
 
 // Redis keys helpers
 const membersKey = (roomId) => `room:${roomId}:members`;

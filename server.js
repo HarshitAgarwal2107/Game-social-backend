@@ -38,8 +38,8 @@ const PORT = process.env.PORT || 5000;
 /* ---------------- CORS ---------------- */
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL,      // Vercel
-  "http://localhost:5173"        // Local dev
+  process.env.FRONTEND_URL,      // https://game-social.vercel.app
+  "http://localhost:5173"        // local dev
 ].filter(Boolean);
 
 app.use(
@@ -47,6 +47,8 @@ app.use(
     origin(origin, callback) {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      console.error("❌ Blocked by CORS:", origin);
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true
@@ -74,7 +76,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
-      secure: true,        // REQUIRED for Vercel/Railway
+      secure: true,        // REQUIRED for HTTPS (Vercel/Railway)
       sameSite: "none"     // REQUIRED for cross-origin cookies
     }
   })
@@ -145,20 +147,20 @@ socketHandlers(io);
 async function main() {
   try {
     await connectDB();
-    console.log("All DBs connected.");
+    console.log("✅ All DBs connected");
 
     startCron({ runImmediately: true });
-    console.log("Trending cron started.");
+    console.log("✅ Trending cron started");
 
     startRawgCron({ runImmediately: true });
-    console.log("RAWG cron started.");
+    console.log("✅ RAWG cron started");
 
     server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log("Socket.IO ready");
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log("🔌 Socket.IO ready");
     });
   } catch (err) {
-    console.error("Startup failure:", err);
+    console.error("❌ Startup failure:", err);
     process.exit(1);
   }
 }

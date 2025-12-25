@@ -1,6 +1,6 @@
 import express from "express";
 import GameReview from "../models/GameReview.js";
-import { rawgToSteamAppId } from "../utils/rawgTosteam.js";
+import { rawgToSteamAppId } from "../utils/rawgToSteam.js";
 import { getPlaytime } from "../utils/getPlaytime.js";
 import ReviewComment from "../models/ReviewComment.js";
 import { PRO_TAGS, CON_TAGS } from "../shared/reviewTags.js";

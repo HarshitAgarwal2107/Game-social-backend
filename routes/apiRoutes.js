@@ -6,11 +6,11 @@ import User from "../models/User.js";
 import { getLibraryForUser } from "../utils/getLibraryForUser.js";
 
 import SteamLibrary from "../models/SteamLibraries.js";
-import {
-  getMappingBySteamId,
-  autoMatchRawg,
-  upsertMapping
-} from "../utils/steamRawgmap.js";
+// import {
+//   getMappingBySteamId,
+//   autoMatchRawg,
+//   upsertMapping
+// } from "../utils/steamRawgmap.js";
 import { getPG } from "../config/db.js";
 
 dotenv.config();

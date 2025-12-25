@@ -10,7 +10,7 @@ import {
   getMappingBySteamId,
   autoMatchRawg,
   upsertMapping
-} from "../utils/steamRawgMap.js";
+} from "../utils/steamRawgmap.js";
 import { getPG } from "../config/db.js";
 
 dotenv.config();
